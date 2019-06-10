@@ -1,0 +1,10 @@
+{
+	"host": "208.67.49.53",
+	"port": 10001,
+	"patchVersion": 8103,
+	"protocolVersion": 347372,
+	"blackBoxToken": "",
+	"accounts": [
+		{"email": "email@meme.com", "password": "password1", "character": "Mastertim"}
+	]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "tera-bots",
+  "version": "1.0.0",
+  "description": "Collection of TERA bots.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/titandino/tera-bots.git"
+  },
+  "author": "Trenton Kress",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/titandino/tera-bots/issues"
+  },
+  "homepage": "https://github.com/titandino/tera-bots#readme",
+  "dependencies": {
+    "tera-auth-ticket": "https://github.com/titandino/tera-auth-ticket",
+    "tera-data": "https://github.com/titandino/tera-data",
+    "tera-data-parser": "https://github.com/titandino/tera-data-parser",
+    "tera-mod-management": "https://github.com/tera-toolbox/tera-mod-management",
+    "tera-network-proxy": "https://github.com/titandino/tera-network-proxy"
+  }
+}
