@@ -3,6 +3,8 @@ const path = require('path');
 const webClient = require('tera-auth-ticket');
 const { Connection, FakeClient } = require('tera-network-proxy');
 
+global.TeraProxy = { DevMode: true };
+
 let accountNumber = 0;
 
 // let accountNumber = parseInt(process.argv[2]);
@@ -25,15 +27,19 @@ web.getLogin((err, data) =>  {
 		serverId: 4105,
 		platform: 'pc',
 		region: 'NA',
+		environment: 'live',
 		regionShort: 'na',
-		protocol: config.protocolVersion,
 		majorPatch: 81,
 		minorPatch: 3,
-		sysmsg: {}
+		protocolVersion: config.protocolVersion,
+		maps: {
+			sysmsg: {},
+			protocol: loadProtocolMap(config.protocolVersion)
+		}
 	});
 	
 	const client = new FakeClient(connection);
-	connection.info.clientInterface = client;
+	connection.clientInterfaceConnection = client;
 
 	const srvConn = connection.connect(client, { host: config.host, port: config.port });
 
@@ -120,3 +126,29 @@ web.getLogin((err, data) =>  {
 		console.log(err);
   	});
 });
+
+function loadProtocolMap(version) {
+	const parseMap = require('tera-data-parser').parsers.Map;
+	const teradata = path.join(__dirname, '.', 'node_modules', 'tera-data');
+	const filename = `protocol.${version}.map`;
+
+	// Load base
+	let baseMap = {};
+	try {
+			baseMap = parseMap(path.join(teradata, 'map_base', filename));
+	} catch (e) {
+			if (e.code !== 'ENOENT')
+					throw e;
+	}
+
+	// Load custom
+	let customMap = {};
+	try {
+			customMap = parseMap(path.join(teradata, 'map', filename));
+	} catch (e) {
+			if (e.code !== 'ENOENT')
+					throw e;
+	}
+
+	return Object.assign(customMap, baseMap);
+}

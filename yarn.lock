@@ -309,8 +309,8 @@ sshpk@^1.7.0:
     tera-vec3 "github:tera-toolbox/tera-vec3"
 
 "tera-data@https://github.com/titandino/tera-data":
-  version "0.1.0"
-  resolved "https://github.com/titandino/tera-data#4675bd63c415df26c43da5cf3eeeb064e01291b1"
+  version "1.0.1"
+  resolved "https://github.com/titandino/tera-data#133a0b32653dc497617f7ba745f5744779cc07e9"
 
 "tera-mod-management@https://github.com/tera-toolbox/tera-mod-management":
   version "0.0.0"
