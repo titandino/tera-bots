@@ -5,15 +5,7 @@ const { Connection, FakeClient } = require('tera-network-proxy');
 
 global.TeraProxy = { DevMode: true };
 
-let accountNumber = 0;
-
-// let accountNumber = parseInt(process.argv[2]);
-// if (isNaN(accountNumber) || !(accountNumber in config.accounts)) {
-// 	console.log("Please, specify a valid account number to login to.");
-// 	process.exit(1);
-// }
-
-const account = config.accounts[accountNumber];
+const account = config.account;
 console.log(`Logging into character ${account.character} on account ${account.email}.`);
 
 const web = new webClient(account.email, account.password, config.blackBoxToken);
@@ -132,22 +124,20 @@ function loadProtocolMap(version) {
 	const teradata = path.join(__dirname, '.', 'node_modules', 'tera-data');
 	const filename = `protocol.${version}.map`;
 
-	// Load base
 	let baseMap = {};
 	try {
-			baseMap = parseMap(path.join(teradata, 'map_base', filename));
+		baseMap = parseMap(path.join(teradata, 'map_base', filename));
 	} catch (e) {
-			if (e.code !== 'ENOENT')
-					throw e;
+		if (e.code !== 'ENOENT')
+			throw e;
 	}
 
-	// Load custom
 	let customMap = {};
 	try {
-			customMap = parseMap(path.join(teradata, 'map', filename));
+		customMap = parseMap(path.join(teradata, 'map', filename));
 	} catch (e) {
-			if (e.code !== 'ENOENT')
-					throw e;
+		if (e.code !== 'ENOENT')
+			throw e;
 	}
 
 	return Object.assign(customMap, baseMap);

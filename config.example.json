@@ -4,7 +4,9 @@
 	"patchVersion": 8103,
 	"protocolVersion": 347372,
 	"blackBoxToken": "",
-	"accounts": [
-		{"email": "email@meme.com", "password": "password1", "character": "Mastertim"}
-	]
+	"account": {
+		"email": "example@example.com", 
+		"password": "password1", 
+		"character": "Best.Healer.NA"
+	}
 }
