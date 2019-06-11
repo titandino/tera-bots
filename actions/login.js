@@ -17,7 +17,7 @@ module.exports = (d, loginData) => {
     });
 
     d.hook('S_CHECK_VERSION', 1, data => {
-		console.log('Version check ' + (data.ok == 1) ? 'passed' : 'failed');
+		console.log('Version check ' + ((data.ok == 1) ? 'passed' : 'failed'));
 	})
 
 	d.hook('S_LOGIN_ACCOUNT_INFO', 1, () => {

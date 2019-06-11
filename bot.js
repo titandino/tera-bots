@@ -3,7 +3,7 @@ const path = require('path');
 const webClient = require('tera-auth-ticket');
 const { Connection, FakeClient } = require('tera-network-proxy');
 
-global.TeraProxy = { DevMode: true };
+global.TeraProxy = { DevMode: false };
 
 const account = config.account;
 console.log(`Logging into character ${account.character} on account ${account.email}.`);
@@ -36,8 +36,8 @@ web.getLogin((err, data) =>  {
 	const srvConn = connection.connect(client, { host: config.host, port: config.port });
 
 	let dispatch = connection.dispatch;
-	dispatch.toServer = (...args) => dispatch.write(true, args);
-	dispatch.toClient = (...args) => dispatch.write(false, args);
+	dispatch.toServer = (...args) => dispatch.write(true, ...args);
+	dispatch.toClient = (...args) => dispatch.write(false, ...args);
 
 	client.on('connect', () => {
 		require('./actions/login')(dispatch, data);

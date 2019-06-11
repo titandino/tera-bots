@@ -1,6 +1,6 @@
 {
   "name": "tera-bots",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Collection of TERA bots.",
   "main": "index.js",
   "scripts": {

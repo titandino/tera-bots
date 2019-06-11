@@ -290,8 +290,8 @@ sshpk@^1.7.0:
     tweetnacl "~0.14.0"
 
 "tera-auth-ticket@https://github.com/titandino/tera-auth-ticket":
-  version "1.0.0"
-  resolved "https://github.com/titandino/tera-auth-ticket#00a9aeac0815613605fcdb61d88b713c3b2e19b3"
+  version "1.0.3"
+  resolved "https://github.com/titandino/tera-auth-ticket#deac376a56520edc6fe94728427cb0c62420f5d5"
   dependencies:
     request "^2.74.0"
 
