@@ -36,87 +36,21 @@ web.getLogin((err, data) =>  {
 	const srvConn = connection.connect(client, { host: config.host, port: config.port });
 
 	let dispatch = connection.dispatch;
+	dispatch.toServer = (...args) => dispatch.write(true, args);
+	dispatch.toClient = (...args) => dispatch.write(false, args);
 
 	client.on('connect', () => {
-		console.log('Client connected. Sending login arbiter for '+data.name+'...');
-		dispatch.write(true, 'C_CHECK_VERSION', 1, {
-			version: [
-				{ index: 0, value: 347372 }, { index: 1, value: 346284 }
-			]
-		});
-		dispatch.write(true, 'C_LOGIN_ARBITER', 2, {
-			unk1: 0,
-			unk2: 0,
-			language: 2,
-			patchVersion: config.patchVersion,
-			name: data.name,
-			ticket: Buffer.from(data.ticket),
-		});
-	});
-
-	client.on('close', () => {
-		console.log('Client closed.');
-	});
-
-	client.on('error', event => {
-		console.log('Error:');
-		console.log(event);
-	})
-
-	dispatch.hook('S_CHECK_VERSION', 1, data => {
-		console.log('Version check: ' + (data.ok == 1));
-	})
-
-	dispatch.hook('S_LOGIN_ACCOUNT_INFO', 1, () => {
-		dispatch.write(true, 'C_GET_USER_LIST', 1);
-	});
-
-	dispatch.hook('S_GET_USER_LIST', 14, event => {
-		const characters = new Map();
-		for (const character of event.characters) {
-			characters.set(character.name.toLowerCase(), {
-				id: character.id,
-				description: `${character.name} Level ${character.level}`,
-			});
-		}
-
-		const character = characters.get(account.character.toLowerCase());
-		if (!character) {
-			console.error(`[client] no character "${account.character}"`);
-			console.error('[client] character list:');
-			for (const char of characters.values()) {
-				  console.error(`- ${char.description} (id: ${char.id})`);
-			}
-		  } else {
-			console.log(`[client] logging onto ${character.description} (id: ${character.id})`);
-			dispatch.write(true, 'C_SELECT_USER', 1, {
-				  id: character.id,
-				  unk: 0,
-			});
-		  }
-	});
-
-	dispatch.hook('S_LOAD_TOPO', 2, event => {
-		dispatch.write(true, 'C_LOAD_TOPO_FIN', 1);
+		require('./actions/login')(dispatch, data);
 	});
 
 	srvConn.setTimeout(0);
+	srvConn.on('connect', () => console.log(`TCP connection established to ${srvConn.remoteAddress}:${srvConn.remotePort}`));
+	srvConn.on('timeout', () => console.log('Server timeout'));
+	srvConn.on('close', () => console.log('Server disconnected'));
+	srvConn.on('error', (err) => console.log(err));
 
-	srvConn.on('connect', () => {
-		console.log(`<connected to ${srvConn.remoteAddress}:${srvConn.remotePort}>`);
-	});
-
-	srvConn.on('timeout', () => {
-		console.log('<timeout>');
-	});
-
-	srvConn.on('close', () => {
-		console.log('<disconnected>');
-	});
-
-	srvConn.on('error', (err) => {
-		console.log(err);
-  	});
+	client.on('close', () => console.log('Client closed'));
+	client.on('error', event => console.log(event));
 });
 
 function loadProtocolMap(version) {
