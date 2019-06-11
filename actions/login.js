@@ -17,7 +17,7 @@ module.exports = (d, loginData) => {
     });
 
     d.hook('S_CHECK_VERSION', 1, data => {
-		console.log('Version check: ' + (data.ok == 1));
+		console.log('Version check ' + (data.ok == 1) ? 'passed' : 'failed');
 	})
 
 	d.hook('S_LOGIN_ACCOUNT_INFO', 1, () => {
@@ -35,13 +35,13 @@ module.exports = (d, loginData) => {
 
 		const character = characters.get(account.character.toLowerCase());
 		if (!character) {
-			console.error(`[client] no character "${account.character}"`);
-			console.error('[client] character list:');
+			console.error(`No character found by name: "${account.character}"`);
+			console.error('Character list:');
 			for (const char of characters.values()) {
 				  console.error(`- ${char.description} (id: ${char.id})`);
 			}
 		  } else {
-			console.log(`[client] logging onto ${character.description} (id: ${character.id})`);
+			console.log(`Logging into character: ${character.description} (id: ${character.id})`);
 			d.toServer('C_SELECT_USER', 1, {
 				  id: character.id,
 				  unk: 0,
