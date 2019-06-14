@@ -1,4 +1,3 @@
-const config = require('./config.json');
 const os = require('os');
 
 const ITEMS_FISHES = [
@@ -15,12 +14,14 @@ const ITEMS_FISHES = [
 	[206431, 206432, 206433, 206434, 206435], // Tier 10
 	[206500, 206501, 206502, 206503, 206504, 206505], // BAF
 ];
+
 const ITEMS_RODS = [
 	[...range(206721, 206728)], //Fairywing Rods
 	[...range(206701, 206708)], //Xermetal Rods
 	[...range(206711, 206718)], //Ash Sapling Rods
 	[206700], //Old Rod
 ];
+
 const PRICES = [2, 4, 6, 8, 10, 12, 14, 16, 19, 22, 25, 50];
 const FILET_ID = 204052;
 const BAITS = {
@@ -44,42 +45,74 @@ const BAITS = {
 	70379: 143188, // Event Bait I
 	5000012: 143188, // Event Bait II
 };
+
 const ITEMS_BANKER = [60264, 160326, 170003, 210111, 216754];
 const ITEMS_SELLER = [160324, 170004, 210109, 60262, 60263, 160325, 170006, 210110];
 const TEMPLATE_SELLER = [9903, 9906, 1960, 1961];
 const TEMPLATE_BANKER = 1962;
-const ITEMS_SALAD = [206020, 206040];
 
-let cid;
+const FISHING_POSITION = {
+    'x': -2679.033203125,
+    'y': 88444.625,
+    'z': -1335.0645751953125
+}
 
-module.exports = (d) => {
-	d.hook('S_LOGIN', 13, event => {
-		cid = event.gameId;
-	});
-};
+class Fishing {
+	constructor(d) {
+		this.d = d;
+		this.d.me.initialize('abnormalities');
+		this.installHooks();
+	}
 
-function teleportTo(d, position) {
-	d.toClient('S_INSTANT_MOVE', 1, { id: cid, x: position.x, y: position.y, z: position.z, w: 0 });
-	d.toServer('C_PLAYER_LOCATION', 1, {
-		x1: position.x, y1: position.y, z1: position.z+20,
-		x2: position.x, y2: position.y, z2: position.z+20,
-		time: Math.round(os.uptime() * 1000),
-		w: 0,
-		type: 2,
-		speed: 0,
-		unk: 0,
-		unk2: 0
-	});
-	setTimeout(function() {
-		d.toServer('C_PLAYER_LOCATION', 1, {
-			x1: position.x, y1: position.y, z1: position.z,
-			x2: position.x, y2: position.y, z2: position.z,
+	installHooks() {
+		this.d.hook('S_SPAWN_USER', 14, event => {
+			if (event.gm) {
+				console.log('GM DETECTED! LOGGING OUT TO LOBBY NOW!');
+				this.d.toServer('C_RETURN_TO_LOBBY', 1, {});
+			}
+		});
+	}
+
+	useItem(item) {
+		this.d.toServer('C_USE_ITEM', 3, {
+			gameId: this.d.me.gameId,
+			id: item.id,
+			dbid: item.dbid,
+			amount: 1,
+			loc: playerLoc.loc,
+			w: playerLoc.w,
+			unk4: true
+		});
+	}
+	
+	teleportTo(position) {
+		this.d.toServer('C_PLAYER_LOCATION', 5, {
+			x1: position.x, y1: position.y, z1: position.z+20,
+			x2: position.x, y2: position.y, z2: position.z+20,
 			time: Math.round(os.uptime() * 1000),
 			w: 0,
-			type: 7,
+			type: 2,
 			speed: 0,
 			unk: 0,
 			unk2: 0
-		   });
-	}, 500);
+		});
+		setTimeout(function() {
+			this.d.toServer('C_PLAYER_LOCATION', 5, {
+				x1: position.x, y1: position.y, z1: position.z,
+				x2: position.x, y2: position.y, z2: position.z,
+				time: Math.round(os.uptime() * 1000),
+				w: 0,
+				type: 7,
+				speed: 0,
+				unk: 0,
+				unk2: 0
+			   });
+		}, 500);
+	}
 }
+
+function* range(a, b) {
+	for (var i = a; i <= b; ++i) yield i;
+}
+
+module.exports = Fishing;

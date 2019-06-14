@@ -21,8 +21,8 @@ web.getLogin((err, data) =>  {
 		region: 'NA',
 		environment: 'live',
 		regionShort: 'na',
-		majorPatch: 81,
-		minorPatch: 3,
+		majorPatch: config.major,
+		minorPatch: config.minor,
 		protocolVersion: config.protocolVersion,
 		maps: {
 			sysmsg: {},
@@ -40,7 +40,7 @@ web.getLogin((err, data) =>  {
 	dispatch.toClient = (...args) => dispatch.write(false, ...args);
 
 	client.on('connect', () => {
-		require('./actions/login')(dispatch, data);
+		require('./login')(dispatch, data);
 	});
 
 	srvConn.setTimeout(0);

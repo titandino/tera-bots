@@ -1,8 +1,11 @@
 {
+	"botToUse": "fish",
 	"host": "208.67.49.53",
 	"port": 10001,
-	"patchVersion": 8103,
-	"protocolVersion": 347372,
+	"patchVersion": 8205,
+	"major": 82,
+	"minor": 5,
+	"protocolVersion": 350027,
 	"blackBoxToken": "",
 	"account": {
 		"email": "example@example.com", 
