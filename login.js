@@ -1,4 +1,7 @@
 const config = require('./config.json');
+const Bot = require('./bots/'+config.botToUse);
+
+let currentBot;
 
 module.exports = (d, loginData) => {
 	console.log('Client connected. Sending login arbiter for '+loginData.name+'...');
@@ -46,8 +49,8 @@ module.exports = (d, loginData) => {
 			}
 		  } else {
 			console.log(`Logging into character: ${character.description} (id: ${character.id})`);
-			require('./mods/fakeclientlib')(d);
-			require('./mods/'+config.botToUse)(d);
+			require('./fakeclientlib')(d);
+			currentBot = new Bot(d);
 			d.toServer('C_SELECT_USER', 1, {
 				  id: character.id,
 				  unk: 0,

@@ -86,8 +86,6 @@ class Me extends EventEmitter {
             if (this.is(event.gameId))
                 this.setStatus(event.status);
         });
-
-        this.parent.on('leave_game', () => { this.reset(); });
     }
 
     installHooksAbnormalities() {
