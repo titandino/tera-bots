@@ -87,26 +87,34 @@ class Fishing {
 	
 	teleportTo(position) {
 		this.d.toServer('C_PLAYER_LOCATION', 5, {
-			x1: position.x, y1: position.y, z1: position.z+20,
-			x2: position.x, y2: position.y, z2: position.z+20,
-			time: Math.round(os.uptime() * 1000),
+			loc: {
+				x: position.x,
+				y: position.y,
+				z: position.z + 20
+			},
+			dest: {
+				x: position.x,
+				y: position.y,
+				z: position.z + 20
+			},
 			w: 0,
+			lookDirection: 0,
 			type: 2,
-			speed: 0,
-			unk: 0,
-			unk2: 0
+			jumpDistance: 0,
+			inShuttle: false,
+			time: Math.round(os.uptime() * 1000),
 		});
 		setTimeout(function() {
 			this.d.toServer('C_PLAYER_LOCATION', 5, {
-				x1: position.x, y1: position.y, z1: position.z,
-				x2: position.x, y2: position.y, z2: position.z,
-				time: Math.round(os.uptime() * 1000),
+				loc: position,
+				dest: position,
 				w: 0,
+				lookDirection: 0,
 				type: 7,
-				speed: 0,
-				unk: 0,
-				unk2: 0
-			   });
+				jumpDistance: 0,
+				inShuttle: false,
+				time: Math.round(os.uptime() * 1000),
+			});
 		}, 500);
 	}
 }
