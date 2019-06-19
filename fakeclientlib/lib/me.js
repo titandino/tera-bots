@@ -37,7 +37,7 @@ class Me extends EventEmitter {
             this.gameId = event.gameId;
             this.templateId = event.templateId;
             this.playerId = event.playerId;
-
+            
             this.setName(event.name);
             this.setLevel(event.level);
             this.setStatus(event.status);
@@ -50,6 +50,7 @@ class Me extends EventEmitter {
 
         this.installHook('S_LOAD_TOPO', 3, (event) => {
             this.setMount(null, null);
+            this.location = event.loc;
             this.setZone(event.zone, event.quick);
         });
 
