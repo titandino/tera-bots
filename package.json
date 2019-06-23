@@ -17,10 +17,13 @@
   },
   "homepage": "https://github.com/titandino/tera-bots#readme",
   "dependencies": {
+    "discord.js": "^11.5.1",
+    "moment": "^2.24.0",
+    "mongoose": "^5.6.0",
     "tera-auth-ticket": "https://github.com/titandino/tera-auth-ticket",
     "tera-data": "https://github.com/titandino/tera-data",
     "tera-data-parser": "https://github.com/titandino/tera-data-parser",
-    "tera-mod-management": "https://github.com/tera-toolbox/tera-mod-management",
+    "tera-mod-management": "https://github.com/titandino/tera-mod-management",
     "tera-network-proxy": "https://github.com/titandino/tera-network-proxy"
   }
 }

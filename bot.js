@@ -5,18 +5,25 @@ const { Connection, FakeClient } = require('tera-network-proxy');
 
 global.TeraProxy = { DevMode: false };
 
-const account = config.account;
+let accountNumber = parseInt(process.argv[2]);
+if (isNaN(accountNumber) || !(accountNumber in config.accounts)) {
+	console.log("Please, specify a valid account number to login to.");
+	process.exit(1);
+}
+
+const account = config.accounts[accountNumber];
+
 console.log(`Logging into character ${account.character} on account ${account.email}.`);
 
-const web = new webClient(account.email, account.password, config.blackBoxToken);
+const web = new webClient(account.email, account.password, account.blackBoxToken);
 web.getLogin((err, data) =>  {
 	if (err) { 
 		console.log(err);
-		return;
+		process.exit(1);
     }
 
 	const connection = new Connection(path.join(__dirname, '.', 'mods'), {
-		serverId: 4105,
+		serverId: config.serverId,
 		platform: 'pc',
 		region: 'NA',
 		environment: 'live',

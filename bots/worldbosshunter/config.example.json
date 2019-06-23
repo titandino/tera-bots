@@ -1,0 +1,10 @@
+{
+	"token": "DISCORD_BOT_TOKEN",
+	"mongodb": "mongodb://127.0.0.1:27017/DATABASE_NAME",
+	"guildId": "DISCORD_GUILD_ID",
+	"channelName": "world-bosses",
+	"actionDelay": 4000,
+	"accounts": [
+		{"email": "EMAIL", "password": "PASS", "character": "CHAR_NAME"}
+	]
+}
