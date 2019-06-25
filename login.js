@@ -3,7 +3,7 @@ const Bot = require('./bots/'+config.botToUse);
 
 let currentBot;
 
-module.exports = (d, loginData) => {
+module.exports = (d, loginData, account) => {
 	console.log('Client connected. Sending login arbiter for '+loginData.name+'...');
 	
     d.toServer('C_CHECK_VERSION', 1, {
@@ -40,9 +40,9 @@ module.exports = (d, loginData) => {
 			});
 		}
 
-		const character = characters.get(config.account.character.toLowerCase());
+		const character = characters.get(account.character.toLowerCase());
 		if (!character) {
-			console.error(`No character found by name: "${config.account.character}"`);
+			console.error(`No character found by name: "${account.character}"`);
 			console.error('Character list:');
 			for (const char of characters.values()) {
 				  console.error(`- ${char.description} (id: ${char.id})`);

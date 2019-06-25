@@ -1,0 +1,59 @@
+[06/24 18:45:20 PDT] 0: (node:22832) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+[06/24 18:45:20 PDT] 0: (node:22832) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+[06/24 18:45:20 PDT] 0: [dispatch] handle: error running hook for S_CURRENT_CHANNEL<2>
+hook: (anonymous) in <unknown>
+data: { zone: 7014, channel: 1, density: 0, type: 1 }
+error: updateAvailableBosses is not defined
+    at Object.callback (D:\Projects\tera-bots\bots\worldbosshunter\index.js:79:17)
+[06/24 18:45:20 PDT] 0: [dispatch] handle: error running hook for S_CURRENT_CHANNEL<2>
+hook: (anonymous) in <unknown>
+data: { zone: 7014, channel: 1, density: 0, type: 1 }
+error: updateAvailableBosses is not defined
+    at Object.callback (D:\Projects\tera-bots\bots\worldbosshunter\index.js:79:17)
+[06/24 18:46:24 PDT] 0: (node:21072) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+[06/24 18:46:24 PDT] 0: (node:21072) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+[06/24 18:46:25 PDT] 0: [dispatch] handle: error running hook for S_CURRENT_CHANNEL<2>
+hook: (anonymous) in <unknown>
+data: { zone: 7014, channel: 1, density: 0, type: 1 }
+error: takeAction is not defined
+    at Object.callback (D:\Projects\tera-bots\bots\worldbosshunter\index.js:81:28)
+[06/24 18:58:21 PDT] 0: (node:22788) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+[06/24 18:58:21 PDT] 0: (node:22788) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+[06/24 18:58:25 PDT] 0: D:\Projects\te
+[06/24 18:58:25 PDT] 0: ra-bots\bots\worldbosshunter\index.js:226
+        this.teleportTo(location.coords);
+             ^
+
+TypeError: this.teleportTo is not a function
+    at Timeout.takeAction [as _onTimeout] (D:\Projects\tera-bots\bots\worldbosshunter\index.js:226:14)
+    at listOnTimeout (internal/timers.js:531:17)
+    at processTimers (internal/timers.js:475:7)
+[06/24 19:24:34 PDT] 0: (node:18912) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+[06/24 19:24:34 PDT] 0: (node:18912) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+[06/24 19:24:38 PDT] 0: D:\Projects\tera-bots\bo
+[06/24 19:24:38 PDT] 0: ts\worldbosshunter\index.js:226
+        this.teleportTo(location.coords);
+             ^
+
+TypeError: this.teleportTo is not a function
+    at Timeout.takeAction [as _onTimeout] (D:\Projects\tera-bots\bots\worldbosshunter\index.js:226:14)
+    at listOnTimeout (internal/timers.js:531:17)
+    at processTimers (internal/timers.js:475:7)
+[06/24 19:33:56 PDT] 0: D:\Projects\tera-bo
+[06/24 19:33:56 PDT] 0: ts\bots\worldbosshunter\index.js:134
+    teleportTo(position) {
+                         ^
+
+SyntaxError: Unexpected token {
+    at Module._compile (internal/modules/cjs/loader.js:718:23)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:785:10)
+    at Module.load (internal/modules/cjs/loader.js:641:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:556:12)
+    at Module.require (internal/modules/cjs/loader.js:681:19)
+    at require (internal/modules/cjs/helpers.js:16:16)
+    at Object.<anonymous> (D:\Projects\tera-bots\login.js:2:13)
+    at Module._compile (internal/modules/cjs/loader.js:774:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:785:10)
+    at Module.load (internal/modules/cjs/loader.js:641:32)
+[06/24 19:34:49 PDT] 0: (node:14544) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+[06/24 19:34:49 PDT] 0: (node:14544) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.

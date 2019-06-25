@@ -47,7 +47,7 @@ web.getLogin((err, data) =>  {
 	dispatch.toClient = (...args) => dispatch.write(false, ...args);
 
 	client.on('connect', () => {
-		require('./login')(dispatch, data);
+		require('./login')(dispatch, data, account);
 	});
 
 	srvConn.setTimeout(0);

@@ -40,209 +40,207 @@ let lastLocationIdx;
 let lastChannel;
 const worldBossMap = new Map();
 
-class WorldBossHunter {
-    constructor(d) {
-        this.d = d;
-        this.installHooks();
+let d;
 
-        for (const boss of bosses) {
-            let arr = new Array(boss.channelCount);
-            worldBossMap.set(boss.name, arr);
+module.exports = function (dispatch) {
+    d = dispatch;
+    installHooks();
 
-            for (let channel = 1; channel <= boss.channelCount; channel++) {
-                Bam.find({ name: boss.name, channel }).sort({ lastSeen: -1 }).limit(1).then((documents) => {
-                    const [doc] = documents;
-                    if (doc) {
-                        arr[channel - 1] = doc;
+    for (const boss of bosses) {
+        let arr = new Array(boss.channelCount);
+        worldBossMap.set(boss.name, arr);
+
+        for (let channel = 1; channel <= boss.channelCount; channel++) {
+            Bam.find({ name: boss.name, channel }).sort({ lastSeen: -1 }).limit(1).then((documents) => {
+                const [doc] = documents;
+                if (doc) {
+                    arr[channel - 1] = doc;
+                }
+            });
+        }
+    }
+
+    mongoose.connect(config.mongodb);
+    client.login(config.token);
+};
+
+function installHooks() {
+    d.hook('S_LOAD_TOPO', 'raw', event => {
+        if (started) {
+            lastChannel = currentChannel;
+        }
+    });
+
+    d.hook('S_CURRENT_CHANNEL', 2, event => {
+        lastChannel = event.channel;
+        currentChannel = event.channel;
+
+        if (!started) {
+            currentZone = event.zone;
+            updateAvailableBosses();
+            started = true;
+            setTimeout(takeAction, config.actionDelay);
+        }
+    });
+
+    d.hook('S_SPAWN_NPC', 11, event => {
+        const boss = lastBoss;
+        const location = lastLocation;
+
+        if (boss && location && event.templateId == boss.templateId && boss.huntingZoneId == boss.huntingZoneId) {
+            let firstSeen = true;
+            const bossArray = worldBossMap.get(boss.name);
+            let doc = bossArray[lastChannel - 1];
+            if (!doc || doc.gameId != event.gameId.toString()) {
+                doc = new Bam({ name: boss.name, location: location.name, channel: lastChannel, gameId: event.gameId.toString() });
+                bossArray[lastChannel - 1] = doc;
+            } else {
+                doc.lastSeen = Date.now();
+                firstSeen = false;
+            }
+            doc.save();
+
+            setTimeout(function () {
+                client.guilds.every(function (guild) {
+                    if (guild.id == config.guildId) {
+                        let channel = guild.channels.find('name', config.channelName);
+                        if (channel != null) {
+                            channel.send(`${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD HH:mm [PDT]')}`);
+                        } else {
+                            console.error(`Could not find the channel with the name ${config.channelName}.`);
+                        }
                     }
                 });
-            }
+            }, 500);
         }
 
-        mongoose.connect(config.mongodb);
-        client.login(config.token);
-    }
-
-    installHooks() {
-        this.d.hook('S_LOAD_TOPO', 'raw', event => {
-            if (started) {
-                lastChannel = currentChannel;
-            }
-        });
-
-        this.d.hook('S_CURRENT_CHANNEL', 2, event => {
-            lastChannel = event.channel;
-            currentChannel = event.channel;
-
-            if (!started) {
-                currentZone = event.zone;
-                updateAvailableBosses();
-                started = true;
-                setTimeout(takeAction, config.actionDelay);
-            }
-        });
-
-        this.d.hook('S_SPAWN_NPC', 11, event => {
-            const boss = lastBoss;
-            const location = lastLocation;
-
-            if (boss && location && event.templateId == boss.templateId && boss.huntingZoneId == boss.huntingZoneId) {
-                let firstSeen = true;
-                const bossArray = worldBossMap.get(boss.name);
-                let doc = bossArray[lastChannel - 1];
-                if (!doc || doc.gameId != event.gameId.toString()) {
-                    doc = new Bam({ name: boss.name, location: location.name, channel: lastChannel, gameId: event.gameId.toString() });
-                    bossArray[lastChannel - 1] = doc;
-                } else {
-                    doc.lastSeen = Date.now();
-                    firstSeen = false;
-                }
-                doc.save();
-
-                setTimeout(function () {
-                    client.guilds.every(function (guild) {
-                        if (guild.id == config.guildId) {
-                            let channel = guild.channels.find('name', config.channelName);
-                            if (channel != null) {
-                                channel.send(`${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD HH:mm [PDT]')}`);
-                            } else {
-                                console.error(`Could not find the channel with the name ${config.channelName}.`);
-                            }
+        if ((event.templateId == 1003 && event.huntingZoneId == 152) || (event.templateId == 1000 && event.huntingZoneId == 429)) {
+            setTimeout(function () {
+                client.guilds.every(function (guild) {
+                    if (guild.id == config.guildId) {
+                        let channel = guild.channels.find('name', config.channelName);
+                        if (channel != null) {
+                            channel.send(`@here CRABS! CRABS! CRABS! CRABS! CRABS! CRABS!`);
+                        } else {
+                            console.error(`Could not find the channel with the name ${config.channelName}.`);
                         }
-                    });
-                }, 500);
-            }
+                    }
+                });
+            }, 500);
+        }
+    });
+}
 
-            if ((event.templateId == 1003 && event.huntingZoneId == 152) || (event.templateId == 1000 && event.huntingZoneId == 429)) {
-                setTimeout(function () {
-                    client.guilds.every(function (guild) {
-                        if (guild.id == config.guildId) {
-                            let channel = guild.channels.find('name', config.channelName);
-                            if (channel != null) {
-                                channel.send(`@here CRABS! CRABS! CRABS! CRABS! CRABS! CRABS!`);
-                            } else {
-                                console.error(`Could not find the channel with the name ${config.channelName}.`);
-                            }
-                        }
-                    });
-                }, 500);
-            }
-        });
-    }
-
-    teleportTo(position) {
-        this.d.toServer('C_PLAYER_LOCATION', 5, {
-            loc: {
-                x: position.x,
-                y: position.y,
-                z: position.z + 20
-            },
-            dest: {
-                x: position.x,
-                y: position.y,
-                z: position.z + 20
-            },
+function teleportTo(position) {
+    d.toServer('C_PLAYER_LOCATION', 5, {
+        loc: {
+            x: position.x,
+            y: position.y,
+            z: position.z + 20
+        },
+        dest: {
+            x: position.x,
+            y: position.y,
+            z: position.z + 20
+        },
+        w: 0,
+        lookDirection: 0,
+        type: 2,
+        jumpDistance: 0,
+        inShuttle: false,
+        time: Math.round(os.uptime() * 1000)
+    });
+    setTimeout(function () {
+        d.toServer('C_PLAYER_LOCATION', 5, {
+            loc: position,
+            dest: position,
             w: 0,
             lookDirection: 0,
-            type: 2,
+            type: 7,
             jumpDistance: 0,
             inShuttle: false,
             time: Math.round(os.uptime() * 1000)
         });
-        setTimeout(function () {
-            this.d.toServer('C_PLAYER_LOCATION', 5, {
-                loc: position,
-                dest: position,
-                w: 0,
-                lookDirection: 0,
-                type: 7,
-                jumpDistance: 0,
-                inShuttle: false,
-                time: Math.round(os.uptime() * 1000)
-            });
-        }, 500);
-    }
+    }, 500);
+}
 
-    updateAvailableBosses() {
-        const now = Date.now();
-        availableBosses = [];
+function updateAvailableBosses() {
+    const now = Date.now();
+    availableBosses = [];
 
-        for (const boss of bosses) {
-            if (boss.zone == currentZone) {
-                const bossArray = worldBossMap.get(boss.name);
+    for (const boss of bosses) {
+        if (boss.zone == currentZone) {
+            const bossArray = worldBossMap.get(boss.name);
 
-                for (let channel = 1; channel <= boss.channelCount; channel++) {
-                    const doc = bossArray[channel - 1];
-                    let cooldown = false;
+            for (let channel = 1; channel <= boss.channelCount; channel++) {
+                const doc = bossArray[channel - 1];
+                let cooldown = false;
 
-                    if (doc && now - doc.lastSeen < 5 * 60 * 60 * 1000 && now - doc.lastSeen > 5 * 60 * 1000) {
-                        cooldown = true;
-                    }
+                if (doc && now - doc.lastSeen < 5 * 60 * 60 * 1000 && now - doc.lastSeen > 5 * 60 * 1000) {
+                    cooldown = true;
+                }
 
-                    if (!cooldown) {
-                        availableBosses.push({ boss, channel });
-                    }
+                if (!cooldown) {
+                    availableBosses.push({ boss, channel });
                 }
             }
         }
-
-        availableBosses.sort((a, b) => a.channel - b.channel);
     }
 
-    takeAction() {
-        if (!availableBosses[currentBoss]) {
-            currentBoss = 0;
-            teleportTo(idleLocations[currentZone]);
-            console.log(`Idle for 1 minute in channel ${currentChannel} zone ${currentZone}...`);
-            setTimeout(() => {
-                updateAvailableBosses();
-                takeAction();
-            }, 60000);
-
-            return;
-        }
-
-        const { boss, channel } = availableBosses[currentBoss];
-
-        if (currentChannel != channel) {
-            currentLocation = 0;
-            console.log(`Checking channel ${channel}`);
-            this.d.toServer('C_SELECT_CHANNEL', 1, {
-                unk: 1,
-                zone: currentZone,
-                channel: channel - 1,
-            });
-            setTimeout(() => lastChannel = currentChannel, 5000);
-            setTimeout(takeAction, 7000);
-            return;
-        }
-
-        const location = boss.locations[currentLocation];
-
-        lastLocation = location;
-        lastBoss = boss;
-        lastLocationIdx = currentLocation;
-
-        teleportTo(location.coords);
-
-        console.log(`Checking at ${location.name}`);
-
-        setTimeout(function () {
-            currentLocation++;
-
-            if (!(currentLocation in boss.locations)) {
-                currentLocation = 0;
-                currentBoss++;
-            }
-
-            if (!(currentBoss in availableBosses)) {
-                currentBoss = 0;
-                updateAvailableBosses();
-            }
-
-            takeAction();
-        }, config.actionDelay);
-    }
+    availableBosses.sort((a, b) => a.channel - b.channel);
 }
 
-module.exports = WorldBossHunter;
+function takeAction() {
+    if (!availableBosses[currentBoss]) {
+        currentBoss = 0;
+        teleportTo(idleLocations[currentZone]);
+        console.log(`Idle for 1 minute in channel ${currentChannel} zone ${currentZone}...`);
+        setTimeout(() => {
+            updateAvailableBosses();
+            takeAction();
+        }, 60000);
+
+        return;
+    }
+
+    const { boss, channel } = availableBosses[currentBoss];
+
+    if (currentChannel != channel) {
+        currentLocation = 0;
+        console.log(`Checking channel ${channel}`);
+        d.toServer('C_SELECT_CHANNEL', 1, {
+            unk: 1,
+            zone: currentZone,
+            channel: channel - 1,
+        });
+        setTimeout(() => lastChannel = currentChannel, 5000);
+        setTimeout(takeAction, 7000);
+        return;
+    }
+
+    const location = boss.locations[currentLocation];
+
+    lastLocation = location;
+    lastBoss = boss;
+    lastLocationIdx = currentLocation;
+
+    teleportTo(location.coords);
+
+    console.log(`Checking at ${location.name}`);
+
+    setTimeout(() => {
+        currentLocation++;
+
+        if (!(currentLocation in boss.locations)) {
+            currentLocation = 0;
+            currentBoss++;
+        }
+
+        if (!(currentBoss in availableBosses)) {
+            currentBoss = 0;
+            updateAvailableBosses();
+        }
+
+        takeAction();
+    }, config.actionDelay);
+}
