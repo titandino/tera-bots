@@ -111,7 +111,7 @@ function installHooks() {
                         let channel = guild.channels.find('name', config.channelName);
                         if (channel != null) {
                             let message = `${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD H:mma [PDT] ')}`;
-                            message += `${event.mode == 1 ? '\r\n**IN COMBAT**' : ''} ${nearbyPlayers.size > 0 ? 'Nearby players: ' + Array.from(nearbyPlayers, ([name, player]) => name + ' ('+player.guildName+')') : ''}`;
+                            message += `${event.mode == 1 ? '\r\n**__IN COMBAT__**' : ''} ${nearbyPlayers.size > 0 ? '\r\nNearby players: ' + Array.from(nearbyPlayers, ([name, player]) => name + ' ('+player.guildName+')') : ''}`;
                             message += `${event.hpLevel == 5 ? '' : '\r\nHealth: ~' + ((event.hpLevel * 20) + 10) + '%'}`
                             channel.send(message);
                         } else {
