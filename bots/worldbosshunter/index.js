@@ -105,7 +105,7 @@ function installHooks() {
                     if (guild.id == config.guildId) {
                         let channel = guild.channels.find('name', config.channelName);
                         if (channel != null) {
-                            channel.send(`${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD HH:mm [PDT]')}`);
+                            channel.send(`${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD H:mma [PDT] ')} ${event.mode == 1 ? ' **IN COMBAT** ' : ''} ${event.hpLevel == 5 ? '' : ' HP LEVEL: ' + event.hpLevel}`);
                         } else {
                             console.error(`Could not find the channel with the name ${config.channelName}.`);
                         }
