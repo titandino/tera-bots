@@ -39,6 +39,7 @@ let lastBoss;
 let lastLocationIdx;
 let lastChannel;
 const worldBossMap = new Map();
+let nearbyPlayers = new Map();
 
 let d;
 
@@ -74,6 +75,7 @@ function installHooks() {
     d.hook('S_CURRENT_CHANNEL', 2, event => {
         lastChannel = event.channel;
         currentChannel = event.channel;
+        nearbyPlayers = new Map();
 
         if (!started) {
             currentZone = event.zone;
@@ -81,6 +83,10 @@ function installHooks() {
             started = true;
             setTimeout(takeAction, config.actionDelay);
         }
+    });
+
+    d.hook('S_SPAWN_USER', 14, event => {
+        nearbyPlayers.set(event.name, event);
     });
 
     d.hook('S_SPAWN_NPC', 11, event => {
@@ -105,7 +111,10 @@ function installHooks() {
                     if (guild.id == config.guildId) {
                         let channel = guild.channels.find('name', config.channelName);
                         if (channel != null) {
-                            channel.send(`${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD H:mma [PDT] ')} ${event.mode == 1 ? ' **IN COMBAT** ' : ''} ${event.hpLevel == 5 ? '' : ' HP LEVEL: ' + event.hpLevel}`);
+                            let message = `${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD H:mma [PDT] ')}`;
+                            message += `${event.mode == 1 ? '\r\n**IN COMBAT**' : ''} ${nearbyPlayers.size > 0 ? 'Nearby players: ' + Array.from(nearbyPlayers, ([name, player]) => name + ' ('+player.guildName+')') : ''}`;
+                            message += `${event.hpLevel == 5 ? '' : '\r\nHealth: ~' + ((event.hpLevel * 20) + 10) + '%'}`
+                            channel.send(message);
                         } else {
                             console.error(`Could not find the channel with the name ${config.channelName}.`);
                         }
