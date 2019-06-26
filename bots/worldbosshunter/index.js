@@ -75,7 +75,6 @@ function installHooks() {
     d.hook('S_CURRENT_CHANNEL', 2, event => {
         lastChannel = event.channel;
         currentChannel = event.channel;
-        nearbyPlayers = new Map();
 
         if (!started) {
             currentZone = event.zone;
@@ -222,6 +221,7 @@ function takeAction() {
             zone: currentZone,
             channel: channel - 1,
         });
+        nearbyPlayers = new Map();
         setTimeout(() => lastChannel = currentChannel, 5000);
         setTimeout(takeAction, 7000);
         return;
