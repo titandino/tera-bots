@@ -148,7 +148,7 @@ class Fishing {
         type: 7,
         jumpDistance: 0,
         inShuttle: false,
-        time: Math.round(os.uptime() * 1000)
+        time: Math.round(os.uptime() * 1000) + 500
       });
     }, 500);
   }
