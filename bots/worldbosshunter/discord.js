@@ -79,7 +79,10 @@ client.on('message', async msg => {
 				return; 
 			}
 
-			if (lastCommandMessage) { msg.reply('I\'m busy right now.'); return; }
+			if (lastCommandMessage) { 
+				msg.reply('I\'m busy right now.'); 
+				return; 
+			}
 			lastCommandMessage = msg;
 			
 			size = Math.min(size, 20);

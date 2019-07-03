@@ -78,11 +78,6 @@ function spawnBotClient(accountIndex) {
 function spawnDiscordClient() {
 	const child = fork('./bots/worldbosshunter/discord');
 	child.on('message', (msg) => {
-		console.log(msg);
-		if (!msg.channel)
-			return;
-		if (!msg.channel.name.equals(config.channelName))
-			return;
 		if (!(msg.account in spawned_childs)) {
 			child.send({message: `ERROR: No account with index ${msg.account} running.`});
 			return;
