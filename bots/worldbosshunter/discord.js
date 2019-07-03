@@ -1,5 +1,5 @@
-const config = require("./config.json");
-const bosses = require("./bosses.js");
+const config = require('./config.json');
+const bosses = require('./bosses.js');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Discord = require('discord.js');
@@ -16,7 +16,7 @@ const BamSchema = new Schema({
 const Bam = mongoose.model('Bam', BamSchema);
 
 client.on('ready', () => {
-	client.user.setUsername("Country Bot");
+	client.user.setUsername('Country Bot');
 });
 
 async function getSpawnTimes() {
@@ -68,18 +68,18 @@ client.on('message', async msg => {
 			if (strings.length > 0) {
 				msg.reply(`\n${strings.join('\n')}`);
 			} else {
-				msg.reply("Invalid argument!");
+				msg.reply('Invalid argument!');
 			}
-		} else if (command === "!status" || command == "!relog") {
+		} else if (command === '!status' || command == '!relog') {
 			let [account, size] = argument.split(',');
 			account = parseInt(account); size = parseInt(size) || 20;
 
 			if (isNaN(account)) {
-				msg.reply("You have to specify an account number for this command.");
+				msg.reply('You have to specify an account number for this command.');
 				return; 
 			}
 
-			if (lastCommandMessage) { msg.reply("I'm busy right now."); return; }
+			if (lastCommandMessage) { msg.reply('I\'m busy right now.'); return; }
 			lastCommandMessage = msg;
 			
 			size = Math.min(size, 20);
@@ -110,5 +110,8 @@ function formatSeconds(seconds) {
 	return `${hours > 0 ? hours + ` hour${hours > 1 ? 's' : ''}, ` : ''}${minutes} minute${minutes > 1 ? 's' : ''}`
 }
 
-mongoose.connect(config.mongodb);
+mongoose.connect(config.mongodb, {
+	useCreateIndex: true,
+	useNewUrlParser: true
+});
 client.login(config.token);

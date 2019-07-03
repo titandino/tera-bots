@@ -61,7 +61,10 @@ module.exports = function (dispatch) {
         }
     }
 
-    mongoose.connect(config.mongodb);
+    mongoose.connect(config.mongodb, {
+        useCreateIndex: true,
+        useNewUrlParser: true
+    });
     client.login(config.token);
 };
 
@@ -108,7 +111,7 @@ function installHooks() {
             setTimeout(function () {
                 client.guilds.every(function (guild) {
                     if (guild.id == config.guildId) {
-                        let channel = guild.channels.find('name', config.channelName);
+                        let channel = guild.channels.find(ch => ch.name == config.channelName);
                         if (channel != null) {
                             let message = `${boss.name} at ${(location ? location.name : 'somewhere')} (location: ${lastLocationIdx}) in channel ${lastChannel}! ${firstSeen ? '@here' : ''} ${moment().format('MM/DD H:mma [PDT] ')}`;
                             message += `${event.mode == 1 ? '\r\n**__IN COMBAT__**' : ''} ${nearbyPlayers.size > 0 ? '\r\nNearby players: ' + Array.from(nearbyPlayers, ([name, player]) => name + ' ('+player.guildName+')') : ''}`;
@@ -126,7 +129,7 @@ function installHooks() {
             setTimeout(function () {
                 client.guilds.every(function (guild) {
                     if (guild.id == config.guildId) {
-                        let channel = guild.channels.find('name', config.channelName);
+                        let channel = guild.channels.find(ch => ch.name == config.channelName);
                         if (channel != null) {
                             channel.send(`@here CRABS! CRABS! CRABS! CRABS! CRABS! CRABS!`);
                         } else {
