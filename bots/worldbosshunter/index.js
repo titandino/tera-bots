@@ -109,7 +109,7 @@ function installHooks() {
             doc.save();
 
             setTimeout(function () {
-                client.guilds.every(function (guild) {
+                client.guilds.every(function(guild) {
                     if (guild.id == config.guildId) {
                         let channel = guild.channels.find(ch => ch.name == config.channelName);
                         if (channel != null) {
