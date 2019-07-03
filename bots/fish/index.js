@@ -91,8 +91,8 @@ class Fishing {
       let fishes = this.d.inventory.findAllInBag(flatSingle(ITEMS_FISHES));
       let bait = this.d.inventory.findInBag(Object.values(BAITS));
 
-      if (bait === undefined) {
-        if (filets === undefined || filets.amount < 60) {
+      if (!bait) {
+        if (!filets || filets.amount < 60) {
           console.log('Ran out of filets for bait. Making more...');
           //TODO dismantle fish into filets
         } else {
