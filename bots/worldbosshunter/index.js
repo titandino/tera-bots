@@ -236,6 +236,7 @@ function takeAction() {
     lastBoss = boss;
     lastLocationIdx = currentLocation;
 
+    nearbyPlayers = new Map();
     teleportTo(location.coords);
 
     console.log(`Checking at ${location.name}`);
