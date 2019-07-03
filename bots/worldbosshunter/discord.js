@@ -58,7 +58,7 @@ client.on('message', async msg => {
 			for (let i = 0; i < arr.length; i++) {
 				if (!argument || arr[i].name.toLowerCase().includes(argument)) {
 					if (arr[i].time != -1) {
-						strings.push(`${arr[i].name}, channel ${arr[i].channel}: ${formatSeconds(arr[i].time)}`);
+						strings.push((arr[i].time > 18000000 ? '**' : '') + `${arr[i].name}, channel ${arr[i].channel}: ${formatSeconds(arr[i].time)}` + (arr[i].time > 18000000 ? '**' : ''));
 					} else {
 						strings.push(`${arr[i].name}, channel ${arr[i].channel}: Not Available!`);
 					}
