@@ -2,3 +2,4 @@
 config.json
 /wbdb
 errors.log
+package-lock.json
