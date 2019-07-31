@@ -4,4 +4,8 @@ const Inventory = require('./lib/inventory');
 module.exports = (d) => {
     d.me = new Me(d);
     d.inventory = new Inventory(d);
+    d.game = {
+        me: d.me,
+        inventory: d.inventory
+    };
 }
