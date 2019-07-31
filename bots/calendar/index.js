@@ -1,3 +1,5 @@
+const os = require('os');
+
 const KARAT_ID = 181139;
 const FASHION_COUPON = 91344;
 
@@ -54,6 +56,10 @@ class Money {
         if (this.lock)
             return;
         console.log(this.getMoneyText());
+
+        if (!this.merchantContract) {
+            
+        }
 
         if (this.d.game.inventory.getTotalAmountInBag(FASHION_COUPON) < 300000) {
             if (!this.claimInterval)
@@ -171,17 +177,42 @@ class Money {
 			return (!(obj.distance > result.distance)) ? obj : result;
 		}, {});
 		return npc;
-	}
+    }
+    
+    teleportTo(position) {
+        this.d.toServer('C_PLAYER_LOCATION', 5, {
+          loc: {
+            x: position.x,
+            y: position.y,
+            z: position.z + 20
+          },
+          dest: {
+            x: position.x,
+            y: position.y,
+            z: position.z + 20
+          },
+          w: 2.9032503886720615,
+          lookDirection: 0,
+          type: 2,
+          jumpDistance: 0,
+          inShuttle: false,
+          time: Math.round(os.uptime() * 1000)
+        });
+        setTimeout(function() {
+          this.d.toServer('C_PLAYER_LOCATION', 5, {
+            loc: position,
+            dest: position,
+            w: 2.9032503886720615,
+            lookDirection: 0,
+            type: 7,
+            jumpDistance: 0,
+            inShuttle: false,
+            time: Math.round(os.uptime() * 1000) + 500
+          });
+        }, 500);
+      }
 
     installHooks() {
-        this.d.hook('S_INVEN', 19, event => {
-            if (this.mainLoop) return false;
-        });
-
-        this.d.hook('S_SYSTEM_MESSAGE_LOOT_ITEM', 'raw', () => {
-            if (this.mainLoop) return false;
-        });
-
         this.d.hook('C_REQUEST_CONTRACT', 1, event => {
             if (event.type == 9) {
                 Object.assign(this.merchantContract, event);
@@ -191,12 +222,10 @@ class Money {
         this.d.hook('S_CANCEL_CONTRACT', 1, event => {
             if (event.type == this.currentContract.type)
                 this.currentContract = null;
-            if (this.mainLoop) return false;
         });
 
         this.d.hook('S_REQUEST_CONTRACT', 1, event => {
             this.currentContract = event;
-            if (this.mainLoop) return false;
         });
 
         this.d.hook('S_DIALOG', 2, event => {
