@@ -1,11 +1,11 @@
 const EventEmitter = require('events');
 
 class Inventory extends EventEmitter {
-    constructor(d) {
+    constructor(parent) {
         super();
         this.setMaxListeners(0);
 
-        this.d = d;
+        this.parent = parent;
 
         this.reset();
         this.installHooks();
@@ -13,15 +13,16 @@ class Inventory extends EventEmitter {
 
     destructor() {
         this.reset();
+        this.parent = undefined;
     }
 
     installHook(name, version, cb) {
-        this.d.hook(name, version, { order: -10000, filter: { fake: null, modified: null, silenced: null } }, cb);
+        this.parent.hook(name, version, { order: -10000, filter: { fake: null, modified: null, silenced: null } }, cb);
     }
 
     installHooks() {
-        this.installHook('S_INVEN', 18, (event) => {
-            if (this.d.me.is(event.gameId))
+        this.installHook('S_INVEN', 19, (event) => {
+            if (!this.parent.me.is(event.gameId))
                 return;
 
             if (event.first)
@@ -31,58 +32,96 @@ class Inventory extends EventEmitter {
 
             if (!event.more) {
                 // Load money etc.
-                this.bagSize = this._buffer.size;
+                this.pocketCount = 1;
+                this.pockets[0] = {
+                    size: this._buffer.size,
+                    lootPriority: 0,
+                    slots: {}
+                };
+
+                this.equipment = {
+                    size: 40,
+                    slots: {}
+                };
+
                 this.equipmentItemLevel = this._buffer.itemLevel;
                 this.totalItemLevel = this._buffer.itemLevelInventory;
                 this.money = this._buffer.gold;
                 this.tcat = this._buffer.tcat;
 
                 // Load items
-                this.slots = {};
                 this.dbids = {};
                 this._buffer.items.forEach(item => {
-                    this.slots[item.slot] = item;
+                    // Convert crystals to array
+                    item.crystals = [];
+                    if (item.crystal1 !== 0)
+                        item.crystals.push(item.crystal1);
+                    delete item.crystal1;
+
+                    if (item.crystal2 !== 0)
+                        item.crystals.push(item.crystal2);
+                    delete item.crystal2;
+
+                    if (item.crystal3 !== 0)
+                        item.crystals.push(item.crystal3);
+                    delete item.crystal3;
+
+                    if (item.crystal4 !== 0)
+                        item.crystals.push(item.crystal4);
+                    delete item.crystal4;
+
+                    if (item.crystal5 !== 0)
+                        item.crystals.push(item.crystal5);
+                    delete item.crystal5;
+
+                    if (item.slot < 40) {
+                        item.container = 14;
+                        item.pocket = 0;
+                        this.equipment.slots[item.slot] = item;
+                    } else {
+                        item.container = 0;
+                        item.pocket = 0;
+                        item.slot -= 40;
+                        this.pockets[0].slots[item.slot] = item;
+                    }
                     this.dbids[item.dbid] = item;
                 });
 
                 this._buffer = null;
+                this.emit('update');
             }
         });
     }
 
     reset() {
         this._buffer = null;
-        this.slots = {};
         this.dbids = {};
-        this.bagSize = null;
         this.equipmentItemLevel = null;
         this.totalItemLevel = null;
         this.money = null;
         this.tcat = null;
-    }
-
-    isSlot(slot) {
-        return this.isEquipmentSlot(slot) || this.isBagSlot(slot);
-    }
-
-    isEquipmentSlot(slot) {
-        return slot > 0 && slot < 40;
-    }
-
-    isBagSlot(slot) {
-        return slot >= 40 && slot < 40 + this.bagSize;
-    }
-
-    get items() {
-        return Object.values(this.slots);
-    }
-
-    get equipment() {
-        return Object.values(this.slots).filter(item => this.isEquipmentSlot(item.slot));
+        this.pocketCount = 0;
+        this.pockets = [];
+        this.equipment = {
+            size: 0,
+            slots: {}
+        };
     }
 
     get bag() {
-        return Object.values(this.slots).filter(item => this.isBagSlot(item.slot));
+        return this.pockets[0];
+    }
+
+    get items() {
+        return Object.values(this.dbids);
+    }
+
+    get equipmentItems() {
+        return Object.values(this.equipment.slots);
+    }
+
+    get bagItems() {
+        return Object.values(this.bag.slots);
     }
 
     getTotalAmount(id) {
@@ -94,16 +133,16 @@ class Inventory extends EventEmitter {
 
     getTotalAmountInEquipment(id) {
         if (Array.isArray(id))
-            return this.equipment.reduce((amount, item) => id.includes(item.id) ? amount + item.amount : amount, 0);
+            return this.equipmentItems.reduce((amount, item) => id.includes(item.id) ? amount + item.amount : amount, 0);
         else
-            return this.equipment.reduce((amount, item) => (item.id === id) ? amount + item.amount : amount, 0);
+            return this.equipmentItems.reduce((amount, item) => (item.id === id) ? amount + item.amount : amount, 0);
     }
 
     getTotalAmountInBag(id) {
         if (Array.isArray(id))
-            return this.bag.reduce((amount, item) => id.includes(item.id) ? amount + item.amount : amount, 0);
+            return this.bagItems.reduce((amount, item) => id.includes(item.id) ? amount + item.amount : amount, 0);
         else
-            return this.bag.reduce((amount, item) => (item.id === id) ? amount + item.amount : amount, 0);
+            return this.bagItems.reduce((amount, item) => (item.id === id) ? amount + item.amount : amount, 0);
     }
 
     find(id) {
@@ -115,16 +154,16 @@ class Inventory extends EventEmitter {
 
     findInEquipment(id) {
         if (Array.isArray(id))
-            return this.equipment.find(item => id.includes(item.id));
+            return this.equipmentItems.find(item => id.includes(item.id));
         else
-            return this.equipment.find(item => item.id === id);
+            return this.equipmentItems.find(item => item.id === id);
     }
 
     findInBag(id) {
         if (Array.isArray(id))
-            return this.bag.find(item => id.includes(item.id));
+            return this.bagItems.find(item => id.includes(item.id));
         else
-            return this.bag.find(item => item.id === id);
+            return this.bagItems.find(item => item.id === id);
     }
 
     findAll(id) {
@@ -136,29 +175,24 @@ class Inventory extends EventEmitter {
 
     findAllInEquipment(id) {
         if (Array.isArray(id))
-            return this.equipment.filter(item => id.includes(item.id));
+            return this.equipmentItems.filter(item => id.includes(item.id));
         else
-            return this.equipment.filter(item => item.id === id);
+            return this.equipmentItems.filter(item => item.id === id);
     }
 
     findAllInBag(id) {
         if (Array.isArray(id))
-            return this.bag.filter(item => id.includes(item.id));
+            return this.bagItems.filter(item => id.includes(item.id));
         else
-            return this.bag.filter(item => item.id === id);
+            return this.bagItems.filter(item => item.id === id);
     }
 
     get equipmentPassivities() {
         let res = [];
-        this.equipment.forEach(item => {
+        this.equipmentItems.forEach(item => {
             const activePassivities = item.passivitySets[item.passivitySet];
-            if (activePassivities) {
-                for (let passivity of activePassivities.passivities) {
-                    if (passivity.id !== 0)
-                        res.push(passivity.id);
-                }
-            }
-
+            if (activePassivities)
+                res = res.concat(activePassivities.passivities.filter(passivity => passivity !== 0));
             res = res.concat(item.mergedPassivities);
         });
 
@@ -167,24 +201,15 @@ class Inventory extends EventEmitter {
 
     get equipmentCrystals() {
         let res = [];
-        this.equipment.forEach(item => {
-            if (item.crystal1 !== 0)
-                res.push(item.crystal1);
-            if (item.crystal2 !== 0)
-                res.push(item.crystal2);
-            if (item.crystal3 !== 0)
-                res.push(item.crystal3);
-            if (item.crystal4 !== 0)
-                res.push(item.crystal4);
-            if (item.crystal5 !== 0)
-                res.push(item.crystal5);
+        this.equipmentItems.forEach(item => {
+            res = res.concat(item.crystals.filter(crystal => crystal !== 0));
         });
 
         return res;
     }
 
     get weaponEquipped() {
-        return !!this.slots[1];
+        return !!this.equipment.slots[1];
     }
 }
 

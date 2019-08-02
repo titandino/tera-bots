@@ -11,8 +11,8 @@ const MERCHANT_LOC = {
 
 const TEMPLATE_MERCHANT = [135,];
 
-const CLAIM_INTERVAL = 5;
-const SELL_INTERVAL = 10;
+const CLAIM_INTERVAL = 20;
+const SELL_INTERVAL = 40;
 
 function getTime(month, day) {
     let date = new Date(2019, month-1, day);
@@ -38,7 +38,7 @@ class Calendar {
 
     start(month, day) {
         this.time = getTime(month, day);
-        this.startMoney = d.game.inventory.money / 10000n;
+        this.startMoney = this.d.game.inventory.money / 10000n;
         this.startTime = Date.now();
         this.mainLoop = setInterval(this.loop.bind(this), 100);
         console.log('Starting...');
@@ -94,8 +94,6 @@ class Calendar {
             return;
         }
 
-        console.log(this.getMoneyText());
-
         if (this.d.game.inventory.getTotalAmountInBag(FASHION_COUPON) < 300000) {
             if (!this.claimInterval)
                 this.claimInterval = this.interval = setInterval(() => this.d.toServer('C_GET_ATTENDANCE_REWARD', 1, { time: this.time }), CLAIM_INTERVAL);
@@ -121,10 +119,9 @@ class Calendar {
                     }
 
                     let delay = SELL_INTERVAL;
-                    this.lock = true;
                     this.itemsToProcess = this.d.game.inventory.findAllInBag(KARAT_ID);
                     for (let item of this.itemsToProcess.slice(0, 18)) {
-                        this.d.setTimeout(() => {
+                        setTimeout(() => {
                             if (this.currentContract) {
                                 this.d.toServer('C_STORE_SELL_ADD_BASKET', 1, {
                                     cid: this.d.game.me.gameId,
@@ -140,10 +137,12 @@ class Calendar {
 
                     this.itemsToProcess = this.itemsToProcess.slice(18);
 
-                    this.d.setTimeout(() => {
-                        if (this.currentContract)
+                    this.sleep(delay+200);
+
+                    setTimeout(() => {
+                        if (this.currentContract) {
                             this.d.toServer('C_STORE_COMMIT', 1, { gameId: this.d.game.me.gameId, contract: this.currentContract.id });
-                        this.lock = false;
+                        }
                     }, delay);
                 } else if (this.currentContract.type == 20) {
                     if (this.d.game.inventory.getTotalAmountInBag(KARAT_ID) > 0) {
@@ -153,7 +152,7 @@ class Calendar {
                     let delay = SELL_INTERVAL;
                     this.lock = true;
                     for (let i = 0; i < 18; i++) {
-                        this.d.setTimeout(() => {
+                        setTimeout(() => {
                             if (this.currentContract) {
                                 this.d.toServer('C_MEDAL_STORE_BUY_ADD_BASKET', 1, {
                                     gameId: this.d.game.me.gameId,
@@ -165,9 +164,11 @@ class Calendar {
                         }, delay);
                         delay += SELL_INTERVAL;
                     }
-                    this.d.setTimeout(() => {
-                        if (this.currentContract)
+                    setTimeout(() => {
+                        if (this.currentContract) {
                             this.d.toServer('C_MEDAL_STORE_COMMIT', 1, { gameId: this.d.game.me.gameId, contract: this.currentContract.id });
+                            console.log(this.getMoneyText());
+                        }
                         this.lock = false;
                     }, delay);
                 }
@@ -176,7 +177,7 @@ class Calendar {
     }
 
     contactNpc(gameId) {
-        this.d.send('C_NPC_CONTACT', 2, {
+        this.d.toServer('C_NPC_CONTACT', 2, {
             gameId: gameId
         });
     }
@@ -196,6 +197,7 @@ class Calendar {
                 type: this.currentContract.type,
                 id: this.currentContract.id
             });
+            this.currentContract = null;
         }
     }
 
@@ -281,6 +283,14 @@ class Calendar {
             this.currentContract = event;
         });
 
+        this.d.hook('S_DIALOG_EVENT', 'raw', event => {
+            this.d.toServer('C_DIALOG_EVENT', 1, {
+                unk1: -1467822183,
+                unk2: 2,
+                unk3: 0
+            });
+        });
+
         this.d.hook('C_PLAYER_LOCATION', 5, event => {
             this.playerLocation = event;
         });
@@ -288,11 +298,23 @@ class Calendar {
         this.d.hook('S_LOAD_TOPO', 3, event => {
             this.playerLocation.loc = event.loc;
             this.playerLocation.w = 0;
+            console.log('Logged in fully. Starting in 5 seconds...');
+            setTimeout(() => {
+                this.start(8, 1);
+            });
         });
 
         this.d.hook('S_DIALOG', 2, event => {
             this.lastDialog = event;
-            this.d.send('C_DIALOG', 1, {
+            this.d.toServer('C_DIALOG_EVENT', 1, {
+                unk1: -1467822183,
+                unk2: 0,
+                unk3: 0
+            });
+            this.d.toServer('C_SHOW_INVEN', 1, {
+                unk: 1
+            });
+            this.d.toServer('C_DIALOG', 1, {
                 id: event.id,
                 index: 1,
                 questReward: -1,
