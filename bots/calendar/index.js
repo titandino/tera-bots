@@ -1,4 +1,5 @@
 const os = require('os');
+const moment = require('moment');
 
 const KARAT_ID = 181139;
 const FASHION_COUPON = 91344;
@@ -11,12 +12,19 @@ const MERCHANT_LOC = {
 
 const TEMPLATE_MERCHANT = [135,];
 
-const CLAIM_INTERVAL = 20;
-const SELL_INTERVAL = 40;
+const CLAIM_INTERVAL = 30;
+const SELL_INTERVAL = 60;
+
+function getPSTDate() {
+    let d = new Date();
+    let utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    let nd = new Date(utc + (3600000 * -7));
+    return nd;
+}
 
 function getTime(month, day) {
     let date = new Date(2019, month-1, day);
-    date.setHours(1);
+    date.setHours(-(new Date().getTimezoneOffset() / 60) + 8);
     date.setMinutes(0);
     date.setSeconds(0);
     date.setMilliseconds(0);
@@ -64,6 +72,13 @@ class Calendar {
     }
 
     loop() {
+        let dateNow = getPSTDate();
+        if (dateNow.getHours() == 0 && dateNow.getMinutes() > 45) {
+            this.stop();
+            process.exit();
+            return;
+        }
+
         if (this.lock)
             return;
 
